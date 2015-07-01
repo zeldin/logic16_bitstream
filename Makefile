@@ -10,6 +10,7 @@ saleae-logic16-fpga-33_TOP_MODULE := logic_top
 saleae-logic16-fpga-33_VERILOG_SOURCES := \
 	$(SRC)/logic_top.v \
 	$(SRC)/normal_clock_domain.v \
+	$(SRC)/fast_clock_domain.v \
 	$(SRC)/regaccess.v \
 	$(SRC)/spi_slave.v \
 	$(SRC)/pwm.v \
