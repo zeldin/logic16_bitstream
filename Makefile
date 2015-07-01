@@ -12,6 +12,7 @@ saleae-logic16-fpga-33_VERILOG_SOURCES := \
 	$(SRC)/normal_clock_domain.v \
 	$(SRC)/regaccess.v \
 	$(SRC)/spi_slave.v \
+	$(SRC)/pwm.v \
 	$(SRC)/clock_generator.v
 
 saleae-logic16-fpga-33_IPCORES := \

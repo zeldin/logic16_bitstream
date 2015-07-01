@@ -28,8 +28,6 @@ clock_generator clkgen (.U1_CLKIN_IN(CLKIN48), .U1_U2_SELECT_IN(clksel),
 			.U1_CLKIN_IBUFG_OUT(normalclk), .U1_U2_CLK_OUT(fastclk),
 			.U1_LOCKED_OUT(), .U2_LOCKED_OUT());
 
-assign LED = 1'b0;
-
 wire fifo_reset;
 wire [15:0] sample_data;
 wire sample_data_avail;
@@ -45,6 +43,6 @@ fifo_generator_v9_3 fifo(.rst(fifo_reset), .wr_clk(fastclk), .rd_clk(IFCLK),
                          .full(), .overflow(),
                          .empty(), .valid(RDY0));
    
-normal_clock_domain ncd(.clk(normalclk), .rst(ncd_rst), .miso(MISO), .mosi(MOSI), .ss(SS), .sclk(SCLK));
+normal_clock_domain ncd(.clk(normalclk), .rst(ncd_rst), .miso(MISO), .mosi(MOSI), .ss(SS), .sclk(SCLK), .led_out(LED));
 	
 endmodule
