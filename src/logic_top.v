@@ -11,7 +11,8 @@ module logic_top(
     output [7:0] PORT_B,
     output [7:0] PORT_D,
     output RDY0,
-    input CTL0
+    input CTL0,
+    input [15:0] PROBE
 );
 
 wire clksel, clkgen_rst;
