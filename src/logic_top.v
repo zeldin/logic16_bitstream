@@ -20,6 +20,7 @@ wire fastclk, normalclk;
 
 assign clksel = 1'b0;
 assign clkgen_rst = 1'b0;
+assign ncd_rst = 1'b0;
 
 clock_generator clkgen (.U1_CLKIN_IN(CLKIN48), .U1_U2_SELECT_IN(clksel),
                         .U1_RST_IN(clkgen_rst), .U2_RST_IN(clkgen_rst),
@@ -43,6 +44,6 @@ fifo_generator_v9_3 fifo(.rst(fifo_reset), .wr_clk(fastclk), .rd_clk(IFCLK),
                          .full(), .overflow(),
                          .empty(), .valid(RDY0));
    
-normal_clock_domain ncd(.clk(normalclk), .miso(MISO), .mosi(MOSI), .ss(SS), .sclk(SCLK));
+normal_clock_domain ncd(.clk(normalclk), .rst(ncd_rst), .miso(MISO), .mosi(MOSI), .ss(SS), .sclk(SCLK));
 	
 endmodule
