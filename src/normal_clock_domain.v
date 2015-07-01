@@ -49,14 +49,22 @@ module normal_clock_domain(
 
    reg [7:0]  scratchpad_d, scratchpad_q;
    reg [7:0]  led_brightness_d, led_brightness_q;
+   reg        sc_unknown_2_d, sc_unknown_2_q;
 
    always @(*) begin
 
       scratchpad_d = scratchpad_q;
       led_brightness_d = led_brightness_q;
+      sc_unknown_2_d = sc_unknown_2_q;
 
       case (reg_num)
 	REG_VERSION: reg_data_read = VERSION;
+	REG_STATUS_CONTROL: begin
+	   reg_data_read = {1'b0, sc_unknown_2_q, 6'b001000 };
+	   if (reg_write) begin
+	      sc_unknown_2_d = reg_data_write[6];
+	   end
+	end
 	REG_LED_BRIGHTNESS: begin
 	   reg_data_read = led_brightness_q;
 	   if (reg_write) led_brightness_d = reg_data_write;
@@ -74,9 +82,11 @@ module normal_clock_domain(
       if (rst) begin
 	 scratchpad_q <= 8'h73;
 	 led_brightness_q <= 8'h00;
+	 sc_unknown_2_q <= 1'b0;
       end else begin
 	 scratchpad_q <= scratchpad_d;
 	 led_brightness_q <= led_brightness_d;
+	 sc_unknown_2_q <= sc_unknown_2_d;
       end
    end
 
