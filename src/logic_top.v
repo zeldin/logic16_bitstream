@@ -42,11 +42,13 @@ fifo_generator_v9_3 fifo(.rst(fifo_reset), .wr_clk(fastclk), .rd_clk(IFCLK),
 
 wire acq_enable_ncd, acq_enable_fcd;
 wire [7:0] clkdiv_ncd, clkdiv_fcd;
+wire [15:0] channel_enable_ncd, channel_enable_fcd;
 
 normal_clock_domain ncd(.clk(normalclk), .rst(ncd_rst), .miso(MISO),
 			.mosi(MOSI), .ss(SS), .sclk(SCLK), .led_out(LED),
 			.acq_enable(acq_enable_ncd),
-			.clock_select(clksel), .clock_divisor(clkdiv_ncd));
+			.clock_select(clksel), .clock_divisor(clkdiv_ncd),
+			.channel_enable(channel_enable_ncd));
 
 synchronizer acq_enable_sync (.clk(fastclk),
 			      .in(acq_enable_ncd), .out(acq_enable_fcd));
@@ -54,10 +56,15 @@ synchronizer acq_enable_sync (.clk(fastclk),
 synchronizer #(8) clkdiv_sync (.clk(fastclk),
 			       .in(clkdiv_ncd), .out(clkdiv_fcd));
 
+synchronizer #(16) channel_enable_sync (.clk(fastclk),
+					.in(channel_enable_ncd),
+					.out(channel_enable_fcd));
+
 fast_clock_domain fcd(.clk(fastclk), .rst(fcd_rst), .probe(PROBE),
 		      .sample_data(sample_data),
 		      .sample_data_avail(sample_data_avail),
 		      .acq_enable(acq_enable_fcd),
-		      .clock_divisor(clkdiv_fcd));
+		      .clock_divisor(clkdiv_fcd),
+		      .channel_enable(channel_enable_fcd));
 
 endmodule

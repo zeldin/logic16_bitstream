@@ -15,6 +15,7 @@ saleae-logic16-fpga-33_VERILOG_SOURCES := \
 	$(SRC)/spi_slave.v \
 	$(SRC)/pwm.v \
 	$(SRC)/clock_divider.v \
+	$(SRC)/serial_to_parallel.v \
 	$(SRC)/synchronizer.v \
 	$(SRC)/clock_generator.v
 

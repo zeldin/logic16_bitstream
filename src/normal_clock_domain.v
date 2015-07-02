@@ -10,7 +10,8 @@ module normal_clock_domain(
     output led_out,
     output acq_enable,
     output clock_select,
-    output [7:0] clock_divisor
+    output [7:0] clock_divisor,
+    output [15:0] channel_enable
 );
 
    wire [6:0] reg_num;
@@ -56,6 +57,8 @@ module normal_clock_domain(
    reg        acq_enable_d, acq_enable_q;
    reg        clock_select_d, clock_select_q;
    reg [7:0]  clock_divisor_d, clock_divisor_q;
+   reg [7:0]  channel_select_low_d, channel_select_low_q;
+   reg [7:0]  channel_select_high_d, channel_select_high_q;
 
    always @(*) begin
 
@@ -65,6 +68,8 @@ module normal_clock_domain(
       acq_enable_d = acq_enable_q;
       clock_select_d = clock_select_q;
       clock_divisor_d = clock_divisor_q;
+      channel_select_low_d = channel_select_low_q;
+      channel_select_high_d = channel_select_high_q;
 
       case (reg_num)
 	REG_VERSION: reg_data_read = VERSION;
@@ -74,6 +79,14 @@ module normal_clock_domain(
 	      sc_unknown_2_d = reg_data_write[6];
 	      acq_enable_d = reg_data_write[0];
 	   end
+	end
+	REG_CHANNEL_SELECT_LOW: begin
+	   reg_data_read = channel_select_low_q;
+	   if (reg_write) channel_select_low_d = reg_data_write;
+	end
+	REG_CHANNEL_SELECT_HIGH: begin
+	   reg_data_read = channel_select_high_q;
+	   if (reg_write) channel_select_high_d = reg_data_write;
 	end
 	REG_SAMPLE_RATE_DIVISOR: begin
 	   reg_data_read = clock_divisor_q;
@@ -106,6 +119,8 @@ module normal_clock_domain(
 	 acq_enable_q <= 1'b0;
 	 clock_select_q <= 1'b0;
 	 clock_divisor_q <= 8'h00;
+	 channel_select_low_q <= 8'h00;
+	 channel_select_high_q <= 8'h00;
       end else begin
 	 scratchpad_q <= scratchpad_d;
 	 led_brightness_q <= led_brightness_d;
@@ -113,6 +128,8 @@ module normal_clock_domain(
 	 acq_enable_q <= acq_enable_d;
 	 clock_select_q <= clock_select_d;
 	 clock_divisor_q <= clock_divisor_d;
+	 channel_select_low_q <= channel_select_low_d;
+	 channel_select_high_q <= channel_select_high_d;
       end
    end
 
@@ -128,5 +145,6 @@ module normal_clock_domain(
    assign acq_enable = acq_enable_q;
    assign clock_select = clock_select_q;
    assign clock_divisor = clock_divisor_q;
+   assign channel_enable = { channel_select_high_q, channel_select_low_q };
 
 endmodule
