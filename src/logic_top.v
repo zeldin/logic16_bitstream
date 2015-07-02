@@ -34,7 +34,7 @@ wire sample_data_avail;   // - " -
 
 assign fifo_reset = 1'b0;
 
-fifo_generator_v9_3 fifo(.rst(fifo_reset), .wr_clk(fastclk), .rd_clk(IFCLK),
+fifo_generator_v9_3 fifo(.rst(fifo_reset), .wr_clk(fastclk), .rd_clk(~IFCLK),
                          .din(sample_data), .wr_en(sample_data_avail),
                          .rd_en(~CTL0), .dout({PORT_D, PORT_B}),
                          .full(), .overflow(),
