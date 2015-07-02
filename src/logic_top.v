@@ -18,8 +18,6 @@ module logic_top(
 wire clksel, clkgen_rst;
 wire fastclk, normalclk;
 
-
-assign clksel = 1'b0;
 assign clkgen_rst = 1'b0;
 assign ncd_rst = 1'b0;
 assign fcd_rst = 1'b0;
@@ -42,10 +40,24 @@ fifo_generator_v9_3 fifo(.rst(fifo_reset), .wr_clk(fastclk), .rd_clk(IFCLK),
                          .full(), .overflow(),
                          .empty(), .valid(RDY0));
 
-normal_clock_domain ncd(.clk(normalclk), .rst(ncd_rst), .miso(MISO), .mosi(MOSI), .ss(SS), .sclk(SCLK), .led_out(LED));
+wire acq_enable_ncd, acq_enable_fcd;
+wire [7:0] clkdiv_ncd, clkdiv_fcd;
+
+normal_clock_domain ncd(.clk(normalclk), .rst(ncd_rst), .miso(MISO),
+			.mosi(MOSI), .ss(SS), .sclk(SCLK), .led_out(LED),
+			.acq_enable(acq_enable_ncd),
+			.clock_select(clksel), .clock_divisor(clkdiv_ncd));
+
+synchronizer acq_enable_sync (.clk(fastclk),
+			      .in(acq_enable_ncd), .out(acq_enable_fcd));
+
+synchronizer #(8) clkdiv_sync (.clk(fastclk),
+			       .in(clkdiv_ncd), .out(clkdiv_fcd));
 
 fast_clock_domain fcd(.clk(fastclk), .rst(fcd_rst), .probe(PROBE),
 		      .sample_data(sample_data),
-		      .sample_data_avail(sample_data_avail));
+		      .sample_data_avail(sample_data_avail),
+		      .acq_enable(acq_enable_fcd),
+		      .clock_divisor(clkdiv_fcd));
 
 endmodule
