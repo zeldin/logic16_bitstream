@@ -15,7 +15,7 @@ module logic_top(
     input [15:0] PROBE
 );
 
-wire clksel, clkgen_rst; // async
+wire clksel, clkgen_rst, clklock; // async
 wire fastclk, normalclk, ifclk_int;
 
 wire fifo_valid_out;        // ifclk
@@ -29,7 +29,7 @@ multi_obuf #(16) fifo_data_buf(.I(fifo_data_out), .O({PORT_D, PORT_B}));
 clock_generators clkgen (.clk48(normalclk), .IFCLK(IFCLK),
 			 .clkgen_rst(clkgen_rst),
 			 .clksel(clksel), .fastclk(fastclk),
-			 .ifclk_out(ifclk_int), .clocks_locked());
+			 .ifclk_out(ifclk_int), .clocks_locked(clklock));
 
 wire fifo_reset; // async
 
@@ -55,12 +55,14 @@ wire [15:0] channel_enable_ncd, channel_enable_fcd;
 // fast clock domain -> normal clock domain
 wire acq_stalled_fcd, acq_stalled_ncd;
 
+synchronizer clklock_sync (.clk(normalclk), .in(clklock), .out(clklock_ncd));
+
 normal_clock_domain ncd(.clk(normalclk), .rst(ncd_rst), .miso(MISO),
 			.mosi(MOSI), .ss(SS), .sclk(SCLK), .led_out(LED),
 			.acq_enable(acq_enable_ncd), .acq_reset(acq_reset_ncd),
 			.clock_select(clksel), .clock_divisor(clkdiv_ncd),
 			.channel_enable(channel_enable_ncd),
-			.fifo_overflow(acq_stalled_ncd));
+			.fifo_overflow(acq_stalled_ncd), .clklock(clklock_ncd));
 
 synchronizer acq_enable_sync (.clk(fastclk),
 			      .in(acq_enable_ncd), .out(acq_enable_fcd));
