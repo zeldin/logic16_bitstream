@@ -50,4 +50,12 @@ TIMESPEC TS_CLKIN48 = PERIOD "CLKIN48" 48 MHz HIGH 50%;
 NET "IFCLK" TNM_NET = IFCLK;
 TIMESPEC TS_IFCLK = PERIOD "IFCLK" 48 MHz HIGH 50%;
 
+NET "fastclk" TNM_NET = fastclk;
+NET "normalclk" TNM_NET = normalclk;
+NET "clkgen/clk100" TNM_NET = clk100;
+NET "clkgen/clk160" TNM_NET = clk160;
+
+TIMESPEC TS_false_path1 = FROM normalclk TO fastclk TIG;
+TIMESPEC TS_false_path2 = FROM fastclk TO normalclk TIG;
+TIMESPEC TS_false_path3 = FROM normalclk TO clk100 TIG;
 
