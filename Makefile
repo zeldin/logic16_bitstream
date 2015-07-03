@@ -41,7 +41,13 @@ saleae-logic16-fpga-18_CONSTRAINT_FILES := \
 
 IPCORE_DIR = $(SRC)/ipcore
 
-all : saleae-logic16-fpga-33.bit
+all : $(BINDIR)/saleae-logic16-fpga-18.bitstream $(BINDIR)/saleae-logic16-fpga-33.bitstream
+
+$(BINDIR)/%.bitstream : %.bit | $(BINDIR)
+	cp $< $@
+
+$(BINDIR):
+	mkdir -p $@
 
 .SECONDARY:
 
@@ -54,10 +60,11 @@ else
 SRCDIR?=$(dir $(lastword $(MAKEFILE_LIST)))
 SUB_SRCDIR:=$(if $(filter /%,$(SRCDIR)),,../)$(SRCDIR)
 O=obj
+BINDIR=../bin
 .DEFAULT_GOAL:=dummy
 
 %: | $O
-	@$(MAKE) --no-print-directory -C $O -f $(SUB_SRCDIR)/Makefile SRCDIR=$(SUB_SRCDIR) _= $(if $(MAKECMDGOALS),$@,)
+	@$(MAKE) --no-print-directory -C $O -f $(SUB_SRCDIR)/Makefile SRCDIR=$(SUB_SRCDIR) BINDIR=$(BINDIR) _= $(if $(MAKECMDGOALS),$@,)
 
 clean:
 	rm -rf $O
