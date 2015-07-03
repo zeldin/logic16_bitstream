@@ -18,7 +18,13 @@ module logic_top(
 wire clksel, clkgen_rst; // async
 wire fastclk, normalclk, ifclk_int;
 
+wire fifo_valid_out;        // ifclk
+wire [15:0] fifo_data_out;  // - " -
+
 IBUFG clk48_ibuf(.I(CLKIN48), .O(normalclk));
+
+OBUF fifo_valid_buf(.I(fifo_valid_out), .O(RDY0));
+multi_obuf #(16) fifo_data_buf(.I(fifo_data_out), .O({PORT_D, PORT_B}));
 
 clock_generators clkgen (.clk48(normalclk), .IFCLK(IFCLK),
 			 .clkgen_rst(clkgen_rst),
@@ -36,9 +42,9 @@ wire ncd_rst;             // normal clock domain
 
 fifo_generator_v9_3 fifo(.rst(fifo_reset), .wr_clk(fastclk), .rd_clk(ifclk_int),
                          .din(sample_data), .wr_en(sample_data_avail),
-                         .rd_en(~CTL0), .dout({PORT_D, PORT_B}),
+                         .rd_en(~CTL0), .dout(fifo_data_out),
                          .full(), .overflow(fifo_overflow),
-                         .empty(), .valid(RDY0));
+                         .empty(), .valid(fifo_valid_out));
 
 // normal clock domain -> fast clock domain
 wire acq_enable_ncd, acq_enable_fcd;
