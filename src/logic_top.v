@@ -27,6 +27,7 @@ wire fifo_reset; // async
 
 wire [15:0] sample_data;  // fast clock domain
 wire sample_data_avail;   // - " -
+wire fifo_overflow;       // - " -
 wire fcd_rst;             // - " -
 
 wire ncd_rst;             // normal clock domain
@@ -34,7 +35,7 @@ wire ncd_rst;             // normal clock domain
 fifo_generator_v9_3 fifo(.rst(fifo_reset), .wr_clk(fastclk), .rd_clk(~IFCLK),
                          .din(sample_data), .wr_en(sample_data_avail),
                          .rd_en(~CTL0), .dout({PORT_D, PORT_B}),
-                         .full(), .overflow(),
+                         .full(), .overflow(fifo_overflow),
                          .empty(), .valid(RDY0));
 
 // normal clock domain -> fast clock domain
@@ -43,11 +44,15 @@ wire acq_reset_ncd, acq_reset_fcd;
 wire [7:0] clkdiv_ncd, clkdiv_fcd;
 wire [15:0] channel_enable_ncd, channel_enable_fcd;
 
+// fast clock domain -> normal clock domain
+wire acq_stalled_fcd, acq_stalled_ncd;
+
 normal_clock_domain ncd(.clk(normalclk), .rst(ncd_rst), .miso(MISO),
 			.mosi(MOSI), .ss(SS), .sclk(SCLK), .led_out(LED),
 			.acq_enable(acq_enable_ncd), .acq_reset(acq_reset_ncd),
 			.clock_select(clksel), .clock_divisor(clkdiv_ncd),
-			.channel_enable(channel_enable_ncd));
+			.channel_enable(channel_enable_ncd),
+			.fifo_overflow(acq_stalled_ncd));
 
 synchronizer acq_enable_sync (.clk(fastclk),
 			      .in(acq_enable_ncd), .out(acq_enable_fcd));
@@ -62,12 +67,17 @@ synchronizer #(16) channel_enable_sync (.clk(fastclk),
 					.in(channel_enable_ncd),
 					.out(channel_enable_fcd));
 
+synchronizer acq_stalled_sync (.clk(normalclk),
+			       .in(acq_stalled_fcd), .out(acq_stalled_ncd));
+
 fast_clock_domain fcd(.clk(fastclk), .rst(fcd_rst), .probe(PROBE),
 		      .sample_data(sample_data),
 		      .sample_data_avail(sample_data_avail),
+		      .overflow(fifo_overflow),
 		      .acq_enable(acq_enable_fcd),
 		      .clock_divisor(clkdiv_fcd),
-		      .channel_enable(channel_enable_fcd));
+		      .channel_enable(channel_enable_fcd),
+		      .stalled(acq_stalled_fcd));
 
 assign fcd_rst = acq_reset_fcd;
 assign fifo_reset = acq_reset_fcd;

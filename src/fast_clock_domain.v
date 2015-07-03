@@ -4,12 +4,15 @@ module fast_clock_domain(
     input [15:0] probe,
     output [15:0] sample_data,
     output sample_data_avail,
+    input overflow,
     input acq_enable,
     input [7:0] clock_divisor,
-    input [15:0] channel_enable
+    input [15:0] channel_enable,
+    output stalled
 );
 
    wire sample_tick;
+   reg 	stalled_d, stalled_q;
 
    clock_divider ckd(clk, rst, acq_enable, clock_divisor, sample_tick);
 
@@ -70,7 +73,21 @@ module fast_clock_domain(
    assign CHANNEL[15].latch_chain = 16'h0000;
    assign CHANNEL[15].valid_chain = 1'b0;
 
+   // Stall output if overflow detected
+   always @(*) begin
+      stalled_d = stalled_q | overflow;
+   end
+   always @(posedge clk) begin
+      if (rst) begin
+	 stalled_q <= 1'b0;
+      end else begin
+	 stalled_q <= stalled_d;
+      end
+   end
+
    assign sample_data = CHANNEL[0].latch_q;
-   assign sample_data_avail = CHANNEL[0].valid_q;
+   assign sample_data_avail = CHANNEL[0].valid_q && !stalled && !overflow;
+
+   assign stalled = stalled_q;
 
 endmodule // fast_clock_domain

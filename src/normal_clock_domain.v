@@ -12,7 +12,8 @@ module normal_clock_domain(
     output acq_reset,
     output clock_select,
     output [7:0] clock_divisor,
-    output [15:0] channel_enable
+    output [15:0] channel_enable,
+    input fifo_overflow
 );
 
    wire [6:0] reg_num;
@@ -77,7 +78,8 @@ module normal_clock_domain(
       case (reg_num)
 	REG_VERSION: reg_data_read = VERSION;
 	REG_STATUS_CONTROL: begin
-	   reg_data_read = {1'b0, sc_unknown_2_q, 4'b0010, acq_reset_q, acq_enable_q };
+	   reg_data_read = {1'b0, sc_unknown_2_q, fifo_overflow,
+			    3'b010, acq_reset_q, acq_enable_q };
 	   if (reg_write) begin
 	      sc_unknown_2_d = reg_data_write[6];
 	      acq_enable_d = reg_data_write[0];
