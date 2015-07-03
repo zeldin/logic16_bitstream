@@ -91,9 +91,7 @@ assign fcd_rst = acq_reset_fcd;
 assign fifo_reset = acq_reset_fcd;
 
 // Global reset
-wire reset_release;  // normal clock domain
-synchronizer reset_release_delay (.clk(normalclk), .in(1'b1), .out(reset_release));
-assign ncd_rst = ~reset_release;
+reset_generator rst_gen (.clk(normalclk), .rst(ncd_rst));
 assign clkgen_rst = ncd_rst;
 
 endmodule
