@@ -17,7 +17,7 @@ saleae-logic16-fpga-33_VERILOG_SOURCES := \
 	$(SRC)/clock_divider.v \
 	$(SRC)/serial_to_parallel.v \
 	$(SRC)/synchronizer.v \
-	$(SRC)/clock_generator.v
+	$(SRC)/clock_generators.v
 
 saleae-logic16-fpga-33_IPCORES := \
 	fifo_generator_v9_3

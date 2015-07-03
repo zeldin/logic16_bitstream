@@ -16,12 +16,14 @@ module logic_top(
 );
 
 wire clksel, clkgen_rst; // async
-wire fastclk, normalclk;
+wire fastclk, normalclk, ifclk_int;
 
-clock_generator clkgen (.U1_CLKIN_IN(CLKIN48), .U1_U2_SELECT_IN(clksel),
-                        .U1_RST_IN(clkgen_rst), .U2_RST_IN(clkgen_rst),
-			.U1_CLKIN_IBUFG_OUT(normalclk), .U1_U2_CLK_OUT(fastclk),
-			.U1_LOCKED_OUT(), .U2_LOCKED_OUT());
+IBUFG clk48_ibuf(.I(CLKIN48), .O(normalclk));
+
+clock_generators clkgen (.clk48(normalclk), .IFCLK(IFCLK),
+			 .clkgen_rst(clkgen_rst),
+			 .clksel(clksel), .fastclk(fastclk),
+			 .ifclk_out(ifclk_int), .clocks_locked());
 
 wire fifo_reset; // async
 
@@ -32,7 +34,7 @@ wire fcd_rst;             // - " -
 
 wire ncd_rst;             // normal clock domain
 
-fifo_generator_v9_3 fifo(.rst(fifo_reset), .wr_clk(fastclk), .rd_clk(~IFCLK),
+fifo_generator_v9_3 fifo(.rst(fifo_reset), .wr_clk(fastclk), .rd_clk(ifclk_int),
                          .din(sample_data), .wr_en(sample_data_avail),
                          .rd_en(~CTL0), .dout({PORT_D, PORT_B}),
                          .full(), .overflow(fifo_overflow),
