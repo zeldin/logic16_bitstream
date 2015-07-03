@@ -3,7 +3,7 @@
 
 %.ngc : $$($$*_VERILOG_SOURCES) $$(addprefix ipcore_dir/,$$(addsuffix .v,$$($$*_IPCORES)))
 	@for s in $^; do echo 'verilog work "'"$$s"'"'; done > $*.prj
-	@echo -e > $*.xst 'set -loop_iteration_limit 1000\nrun\n-ifn $*.prj\n-top $($*_TOP_MODULE)\n-p $($*_DEVICE)\n-ofn $@\n-opt_mode speed\n-opt_level 1\n-netlist_hierarchy rebuilt'
+	@/bin/echo -e > $*.xst 'set -loop_iteration_limit 1000\nrun\n-ifn $*.prj\n-top $($*_TOP_MODULE)\n-p $($*_DEVICE)\n-ofn $@\n-opt_mode speed\n-opt_level 1\n-netlist_hierarchy rebuilt'
 	$(XILINXBIN)/xst -ifn $*.xst -ofn $*.srp
 
 %.ngd : %.ngc $$($$*_CONSTRAINT_FILES)
