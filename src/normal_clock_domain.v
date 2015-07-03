@@ -52,9 +52,7 @@ module normal_clock_domain(
    localparam REG_PRIMER_CONTROL = 'h07;
    localparam REG_MODE = 'h0a;
    localparam REG_PRIMER_DATA2 = 'h0c;
-   localparam REG_SCRATCHPAD = 'h0d;
 
-   reg [7:0]  scratchpad_d, scratchpad_q;
    reg [7:0]  led_brightness_d, led_brightness_q;
    reg        sc_unknown_2_d, sc_unknown_2_q;
    reg        acq_enable_d, acq_enable_q;
@@ -66,7 +64,6 @@ module normal_clock_domain(
 
    always @(*) begin
 
-      scratchpad_d = scratchpad_q;
       led_brightness_d = led_brightness_q;
       sc_unknown_2_d = sc_unknown_2_q;
       acq_enable_d = acq_enable_q;
@@ -109,10 +106,6 @@ module normal_clock_domain(
 	      clock_select_d = reg_data_write[0];
 	   end
 	end
-	REG_SCRATCHPAD: begin
-	   reg_data_read = scratchpad_q;
-	   if (reg_write) scratchpad_d = reg_data_write;
-	end
 	default: reg_data_read = 8'b00000000;
       endcase
 
@@ -120,7 +113,6 @@ module normal_clock_domain(
 
    always @(posedge clk) begin
       if (rst) begin
-	 scratchpad_q <= 8'h73;
 	 led_brightness_q <= 8'h00;
 	 sc_unknown_2_q <= 1'b0;
 	 acq_enable_q <= 1'b0;
@@ -130,7 +122,6 @@ module normal_clock_domain(
 	 channel_select_low_q <= 8'h00;
 	 channel_select_high_q <= 8'h00;
       end else begin
-	 scratchpad_q <= scratchpad_d;
 	 led_brightness_q <= led_brightness_d;
 	 sc_unknown_2_q <= sc_unknown_2_d;
 	 acq_enable_q <= acq_enable_d;
