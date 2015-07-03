@@ -9,6 +9,7 @@ module normal_clock_domain(
     input sclk,
     output led_out,
     output acq_enable,
+    output acq_reset,
     output clock_select,
     output [7:0] clock_divisor,
     output [15:0] channel_enable
@@ -55,6 +56,7 @@ module normal_clock_domain(
    reg [7:0]  led_brightness_d, led_brightness_q;
    reg        sc_unknown_2_d, sc_unknown_2_q;
    reg        acq_enable_d, acq_enable_q;
+   reg        acq_reset_d, acq_reset_q;
    reg        clock_select_d, clock_select_q;
    reg [7:0]  clock_divisor_d, clock_divisor_q;
    reg [7:0]  channel_select_low_d, channel_select_low_q;
@@ -66,6 +68,7 @@ module normal_clock_domain(
       led_brightness_d = led_brightness_q;
       sc_unknown_2_d = sc_unknown_2_q;
       acq_enable_d = acq_enable_q;
+      acq_reset_d = acq_reset_q;
       clock_select_d = clock_select_q;
       clock_divisor_d = clock_divisor_q;
       channel_select_low_d = channel_select_low_q;
@@ -74,10 +77,11 @@ module normal_clock_domain(
       case (reg_num)
 	REG_VERSION: reg_data_read = VERSION;
 	REG_STATUS_CONTROL: begin
-	   reg_data_read = {1'b0, sc_unknown_2_q, 5'b00100, acq_enable_q };
+	   reg_data_read = {1'b0, sc_unknown_2_q, 4'b0010, acq_reset_q, acq_enable_q };
 	   if (reg_write) begin
 	      sc_unknown_2_d = reg_data_write[6];
 	      acq_enable_d = reg_data_write[0];
+	      acq_reset_d = reg_data_write[1];
 	   end
 	end
 	REG_CHANNEL_SELECT_LOW: begin
@@ -117,6 +121,7 @@ module normal_clock_domain(
 	 led_brightness_q <= 8'h00;
 	 sc_unknown_2_q <= 1'b0;
 	 acq_enable_q <= 1'b0;
+	 acq_reset_q <= 1'b0;
 	 clock_select_q <= 1'b0;
 	 clock_divisor_q <= 8'h00;
 	 channel_select_low_q <= 8'h00;
@@ -126,6 +131,7 @@ module normal_clock_domain(
 	 led_brightness_q <= led_brightness_d;
 	 sc_unknown_2_q <= sc_unknown_2_d;
 	 acq_enable_q <= acq_enable_d;
+	 acq_reset_q <= acq_reset_d;
 	 clock_select_q <= clock_select_d;
 	 clock_divisor_q <= clock_divisor_d;
 	 channel_select_low_q <= channel_select_low_d;
@@ -143,6 +149,7 @@ module normal_clock_domain(
 
    assign led_out = ~led_pwm_out;
    assign acq_enable = acq_enable_q;
+   assign acq_reset = acq_reset_q | rst;
    assign clock_select = clock_select_q;
    assign clock_divisor = clock_divisor_q;
    assign channel_enable = { channel_select_high_q, channel_select_low_q };
